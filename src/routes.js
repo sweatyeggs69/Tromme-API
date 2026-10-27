@@ -28,7 +28,8 @@ export const routes = {
     originSecret: "ARTWORK_ORIGIN_SECRET",
     params: { artist: { required: true }, album: { required: true } },
     fixed: {},
-    ttl: 3600
+    ttl: 3600,
+    negativeTtl: 3600
   }
 }
 
