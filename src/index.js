@@ -69,6 +69,8 @@ export default {
       return json({ error: "upstream unreachable" }, 502)
     }
 
+    if (!upstreamResponse.ok) console.log(`upstream ${upstreamResponse.status} ${url.pathname}?${query}`)
+
     // Pass the body through untouched so the app's decoders keep working. Only successes are cached,
     // plus 404s on routes that set negativeTtl.
     const cacheable = upstreamResponse.ok || (upstreamResponse.status === 404 && route.negativeTtl)
