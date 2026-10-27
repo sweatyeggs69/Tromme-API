@@ -28,8 +28,10 @@ export default {
         continue
       }
       if (value.length > MAX_PARAM_LENGTH) return json({ error: `${name} too long` }, 400)
+      if (rule.pattern && !rule.pattern.test(value)) return json({ error: `bad ${name}` }, 400)
       query.set(name, value)
     }
+    if (route.requireOne && ![...query.keys()].length) return json({ error: "missing params" }, 400)
     for (const [name, value] of Object.entries(route.fixed)) query.set(name, value)
     query.sort()
 
@@ -45,11 +47,18 @@ export default {
       if (!success) return json({ error: "rate limited" }, 429, { "retry-after": "60" })
     }
 
-    const upstream = new URL(route.upstream)
-    upstream.search = query.toString()
+    const upstreamQuery = new URLSearchParams(query)
+    let upstreamPath = route.upstream
+    for (const [name, rule] of Object.entries(route.params)) {
+      if (!rule.inPath) continue
+      upstreamPath = upstreamPath.replace(`{${name}}`, encodeURIComponent(query.get(name)))
+      upstreamQuery.delete(name)
+    }
+    const upstream = new URL(upstreamPath)
+    upstream.search = upstreamQuery.toString()
     if (apiKey) upstream.searchParams.set(route.keyParam, apiKey)
 
-    const headers = { accept: "application/json" }
+    const headers = { accept: "*/*", "user-agent": "Tromme (https://tromme.app)" }
     const originSecret = route.originSecret ? env[route.originSecret] : undefined
     if (originSecret) headers["x-origin-secret"] = originSecret
 
@@ -60,15 +69,18 @@ export default {
       return json({ error: "upstream unreachable" }, 502)
     }
 
-    // Pass the body through untouched so the app's decoders keep working. Only cache successes.
+    // Pass the body through untouched so the app's decoders keep working. Only successes are cached,
+    // plus 404s on routes that set negativeTtl.
+    const cacheable = upstreamResponse.ok || (upstreamResponse.status === 404 && route.negativeTtl)
+    const ttl = upstreamResponse.ok ? route.ttl : route.negativeTtl
     const response = new Response(upstreamResponse.body, {
       status: upstreamResponse.status,
       headers: {
         "content-type": upstreamResponse.headers.get("content-type") ?? "application/json",
-        "cache-control": upstreamResponse.ok ? `public, max-age=${route.ttl}` : "no-store"
+        "cache-control": cacheable ? `public, max-age=${ttl}` : "no-store"
       }
     })
-    if (upstreamResponse.ok) ctx.waitUntil(cache.put(cacheKey, response.clone()))
+    if (cacheable) ctx.waitUntil(cache.put(cacheKey, response.clone()))
     return response
   }
 }

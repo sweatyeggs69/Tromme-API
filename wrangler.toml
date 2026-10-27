@@ -14,7 +14,7 @@ enabled = true
 name = "LIMITER"
 namespace_id = "1001"
   [ratelimits.simple]
-  limit = 60
+  limit = 200
   period = 60
 
 # Secrets (set with `wrangler secret put`): LASTFM_API_KEY, TICKETMASTER_API_KEY
