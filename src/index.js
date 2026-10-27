@@ -16,8 +16,8 @@ export default {
     const route = routes[url.pathname]
     if (!route) return json({ error: "not found" }, 404)
 
-    const apiKey = env[route.secret]
-    if (!apiKey) return json({ error: "not configured" }, 503)
+    const apiKey = route.secret ? env[route.secret] : undefined
+    if (route.secret && !apiKey) return json({ error: "not configured" }, 503)
 
     // Build the upstream query from the whitelist only.
     const query = new URLSearchParams()
@@ -47,11 +47,15 @@ export default {
 
     const upstream = new URL(route.upstream)
     upstream.search = query.toString()
-    upstream.searchParams.set(route.keyParam, apiKey)
+    if (apiKey) upstream.searchParams.set(route.keyParam, apiKey)
+
+    const headers = { accept: "application/json" }
+    const originSecret = route.originSecret ? env[route.originSecret] : undefined
+    if (originSecret) headers["x-origin-secret"] = originSecret
 
     let upstreamResponse
     try {
-      upstreamResponse = await fetch(upstream, { headers: { accept: "application/json" } })
+      upstreamResponse = await fetch(upstream, { headers })
     } catch {
       return json({ error: "upstream unreachable" }, 502)
     }

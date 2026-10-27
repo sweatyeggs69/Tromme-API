@@ -1,4 +1,5 @@
 // One entry per proxied endpoint. Add a service by adding an entry here and its secret in wrangler.
+// Routes with `secret` need that key (added as `keyParam`); `originSecret` is sent as X-Origin-Secret when set.
 // Only the listed query params are forwarded; everything else the client sends is dropped.
 const MAX_PARAM_LENGTH = 200
 
@@ -17,6 +18,14 @@ export const routes = {
     keyParam: "apikey",
     params: { keyword: { required: true } },
     fixed: { classificationName: "music", sort: "date,asc", size: "50", locale: "*" },
+    ttl: 3600
+  },
+  // AppleArt behind a Cloudflare tunnel. The origin secret is optional until AppleArt enforces ORIGIN_SECRET.
+  "/artwork/search": {
+    upstream: "https://amaa.tromme.app/api/v1/artwork/search",
+    originSecret: "ARTWORK_ORIGIN_SECRET",
+    params: { artist: { required: true }, album: { required: true } },
+    fixed: {},
     ttl: 3600
   }
 }
