@@ -1,7 +1,5 @@
 # Tromme API
 
-Cloudflare Worker at `api.tromme.app`. Holds third-party API keys as Worker secrets so they never ship in the app.
-
 | Route | Upstream | Params |
 | --- | --- | --- |
 | `GET /lastfm/top-tracks` | Last.fm `artist.gettoptracks` | `artist` |
