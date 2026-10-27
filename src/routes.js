@@ -29,29 +29,6 @@ export const routes = {
     params: { artist: { required: true }, album: { required: true } },
     fixed: {},
     ttl: 3600
-  },
-  // Lyrics sources. Responses pass through unchanged; the app does the matching.
-  "/lyrics/lrclib/search": {
-    upstream: "https://lrclib.net/api/search",
-    params: { track_name: {}, artist_name: {}, q: {} },
-    requireOne: true,
-    fixed: {},
-    ttl: 3600,
-    negativeTtl: 3600
-  },
-  "/lyrics/lrcred/search": {
-    upstream: "https://lrc.red/search.json",
-    params: { q: { required: true } },
-    fixed: {},
-    ttl: 3600,
-    negativeTtl: 3600
-  },
-  "/lyrics/lrcred/lrc": {
-    upstream: "https://lrc.red/s/{isrc}.lrc",
-    params: { isrc: { required: true, inPath: true, pattern: /^[A-Za-z0-9]{12}$/ } },
-    fixed: {},
-    ttl: 21600,
-    negativeTtl: 3600
   }
 }
 

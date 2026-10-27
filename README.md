@@ -7,9 +7,6 @@ Cloudflare Worker at `api.tromme.app`. Holds third-party API keys as Worker secr
 | `GET /lastfm/top-tracks` | Last.fm `artist.gettoptracks` | `artist` |
 | `GET /ticketmaster/events` | Ticketmaster Discovery events | `keyword` |
 | `GET /artwork/search` | AppleArt (`amaa.tromme.app`, via tunnel) | `artist`, `album` |
-| `GET /lyrics/lrclib/search` | LRCLIB search | `track_name`, `artist_name`, `q` |
-| `GET /lyrics/lrcred/search` | lrc.red search | `q` |
-| `GET /lyrics/lrcred/lrc` | lrc.red LRC file | `isrc` |
 
 Only GET, only the listed params; everything else is fixed server-side. Responses are edge cached and rate limited per IP.
 
