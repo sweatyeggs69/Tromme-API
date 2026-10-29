@@ -5,8 +5,9 @@
 | `GET /lastfm/top-tracks` | Last.fm `artist.gettoptracks` | `artist` |
 | `GET /ticketmaster/events` | Ticketmaster Discovery events | `keyword` |
 | `GET /artwork/search` | AppleArt (`amaa.tromme.app`, via tunnel) | `artist`, `album` |
+| `POST /report/automix` | Auto Mix issue report, stored in D1 (`tromme-reports`) | JSON body, validated in `src/report.js` |
 
-Only GET, only the listed params; everything else is fixed server-side. Responses are edge cached and rate limited per IP.
+Only GET (plus the one report POST), only the listed params; everything else is fixed server-side. Responses are edge cached and rate limited per IP.
 
 ## Add a service
 

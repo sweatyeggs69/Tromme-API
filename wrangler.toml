@@ -17,4 +17,18 @@ namespace_id = "1001"
   limit = 200
   period = 60
 
+# Burst limit for report submissions, keyed on IP in src/report.js. Hourly and daily caps are counted in D1.
+[[ratelimits]]
+name = "REPORT_LIMITER"
+namespace_id = "1002"
+  [ratelimits.simple]
+  limit = 5
+  period = 60
+
+# Auto Mix issue reports (write-only from the Worker). Table: automix_reports.
+[[d1_databases]]
+binding = "DB"
+database_name = "tromme-reports"
+database_id = "18ea7186-73ab-4e9d-9c2e-0213963c5253"
+
 # Secrets (set with `wrangler secret put`): LASTFM_API_KEY, TICKETMASTER_API_KEY
