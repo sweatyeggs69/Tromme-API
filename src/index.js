@@ -1,5 +1,4 @@
 import { routes, MAX_PARAM_LENGTH } from "./routes.js"
-import { handleReport } from "./report.js"
 
 const json = (body, status, headers = {}) =>
   new Response(JSON.stringify(body), {
@@ -9,7 +8,6 @@ const json = (body, status, headers = {}) =>
 
 export default {
   async fetch(request, env, ctx) {
-    if (new URL(request.url).pathname === "/report/automix") return handleReport(request, env)
     if (request.method !== "GET") {
       return json({ error: "method not allowed" }, 405, { allow: "GET" })
     }
