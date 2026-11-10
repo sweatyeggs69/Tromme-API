@@ -3,7 +3,28 @@
 // A param with `inPath: true` fills the `{name}` placeholder in `upstream` instead of the query, and
 // `pattern` restricts its value. `requireOne` needs at least one of the listed params.
 // `negativeTtl` also caches 404s (a confirmed "nothing there"). Only the listed query params are forwarded; everything else the client sends is dropped.
+// `upstreamParams` adds values sent upstream but kept out of the cache key. `prune` rewrites the JSON body on every
+// response, cached or fresh, and returns the max-age the client may keep it.
 const MAX_PARAM_LENGTH = 200
+
+// Cached results must never show a concert that has already started.
+function pruneStartedEvents(body, now) {
+  const events = body?._embedded?.events
+  if (!Array.isArray(events)) return null
+  const today = new Date(now - 86400000).toISOString().slice(0, 10)
+  let nextStart = Infinity
+  body._embedded.events = events.filter(event => {
+    const start = event?.dates?.start
+    const instant = Date.parse(start?.dateTime ?? "")
+    if (!Number.isNaN(instant)) {
+      if (instant <= now) return false
+      nextStart = Math.min(nextStart, instant)
+      return true
+    }
+    return typeof start?.localDate !== "string" || start.localDate >= today
+  })
+  return Math.floor((nextStart - now) / 1000)
+}
 
 export const routes = {
   "/lastfm/top-tracks": {
@@ -12,7 +33,7 @@ export const routes = {
     keyParam: "api_key",
     params: { artist: { required: true } },
     fixed: { method: "artist.gettoptracks", format: "json", limit: "10", autocorrect: "1" },
-    ttl: 21600
+    ttl: 604800
   },
   "/ticketmaster/events": {
     upstream: "https://app.ticketmaster.com/discovery/v2/events.json",
@@ -20,7 +41,9 @@ export const routes = {
     keyParam: "apikey",
     params: { keyword: { required: true } },
     fixed: { classificationName: "music", sort: "date,asc", size: "50", locale: "*" },
-    ttl: 3600
+    upstreamParams: () => ({ startDateTime: new Date().toISOString().slice(0, 19) + "Z" }),
+    prune: pruneStartedEvents,
+    ttl: 21600
   },
   // AppleArt behind a Cloudflare tunnel. The origin secret is optional until AppleArt enforces ORIGIN_SECRET.
   "/artwork/search": {

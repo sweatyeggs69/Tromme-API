@@ -39,7 +39,7 @@ export default {
     const cacheKey = new Request(`https://api.tromme.app${url.pathname}?${query}`)
     const cache = caches.default
     const cached = await cache.match(cacheKey)
-    if (cached) return cached
+    if (cached) return route.prune ? prune(cached, route) : cached
 
     const ip = request.headers.get("cf-connecting-ip") ?? "unknown"
     if (env.LIMITER) {
@@ -48,6 +48,7 @@ export default {
     }
 
     const upstreamQuery = new URLSearchParams(query)
+    for (const [name, value] of Object.entries(route.upstreamParams?.() ?? {})) upstreamQuery.set(name, value)
     let upstreamPath = route.upstream
     for (const [name, rule] of Object.entries(route.params)) {
       if (!rule.inPath) continue
@@ -83,6 +84,20 @@ export default {
       }
     })
     if (cacheable) ctx.waitUntil(cache.put(cacheKey, response.clone()))
+    return route.prune && upstreamResponse.ok ? prune(response, route) : response
+  }
+}
+
+async function prune(response, route) {
+  let body
+  try {
+    body = await response.clone().json()
+  } catch {
     return response
   }
+  const maxAge = route.prune(body, Date.now())
+  if (maxAge === null) return response
+  return json(body, response.status, {
+    "cache-control": `public, max-age=${Math.max(0, Math.min(route.ttl, maxAge))}`
+  })
 }
