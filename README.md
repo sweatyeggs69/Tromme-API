@@ -7,6 +7,7 @@
 | `GET /artwork/search` | AppleArt (`amaa.tromme.app`, via tunnel) | `artist`, `album` |
 | `GET /artwork/static` | AppleArt static covers (`amaa.tromme.app`, via tunnel) | `artist`, `album` |
 | `GET /artwork/artist` | AppleArt artist images (`amaa.tromme.app`, via tunnel) | `artist` |
+| `GET /album/details` | AppleArt album info and track list | `id`, `country` (optional) |
 
 Only GET, only the listed params; everything else is fixed server-side. Responses are edge cached and rate limited per IP.
 
