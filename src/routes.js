@@ -53,6 +53,14 @@ export const routes = {
     fixed: {},
     ttl: 3600,
     negativeTtl: 3600
+  },
+  "/artwork/static": {
+    upstream: "https://amaa.tromme.app/api/v1/artwork/static/search",
+    originSecret: "ARTWORK_ORIGIN_SECRET",
+    params: { artist: { required: true }, album: { required: true } },
+    fixed: {},
+    ttl: 86400,
+    negativeTtl: 3600
   }
 }
 
