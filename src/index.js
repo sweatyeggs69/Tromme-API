@@ -61,7 +61,11 @@ export default {
 
     const headers = { accept: "*/*", "user-agent": "Tromme (https://tromme.app)" }
     const originSecret = route.originSecret ? env[route.originSecret] : undefined
-    if (originSecret) headers["x-origin-secret"] = originSecret
+    if (originSecret) {
+      headers["x-origin-secret"] = originSecret
+      // The origin sees this Worker's address as CF-Connecting-IP, so it rate limits on this instead.
+      headers["x-client-ip"] = ip
+    }
 
     let upstreamResponse
     try {
