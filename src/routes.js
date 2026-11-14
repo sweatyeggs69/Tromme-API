@@ -80,7 +80,7 @@ export const routes = {
     params: { artist: { required: true }, album: { required: true } },
     fixed: {},
     ttl: 86400,
-    cacheVersion: 2
+    cacheVersion: 3
   },
   "/album/details": {
     bulkLane: "appleart",
