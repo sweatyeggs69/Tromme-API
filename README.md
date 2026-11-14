@@ -3,6 +3,8 @@
 | Route | Upstream | Params |
 | --- | --- | --- |
 | `GET /lastfm/top-tracks` | Last.fm `artist.gettoptracks` | `artist` |
+| `GET /lastfm/album-tags` | Last.fm `album.gettoptags` | `artist`, `album` |
+| `GET /lastfm/artist-tags` | Last.fm `artist.gettoptags` | `artist` |
 | `GET /ticketmaster/events` | Ticketmaster Discovery events | `keyword` |
 | `GET /artwork/search` | AppleArt (`amaa.tromme.app`, via tunnel) | `artist`, `album` |
 | `GET /artwork/static` | AppleArt static covers (`amaa.tromme.app`, via tunnel) | `artist`, `album` |
