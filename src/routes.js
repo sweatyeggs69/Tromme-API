@@ -97,7 +97,8 @@ export const routes = {
     originSecret: "ARTWORK_ORIGIN_SECRET",
     params: { artist: { required: true } },
     fixed: {},
-    ttl: 86400
+    ttl: 86400,
+    cacheVersion: 2
   }
 }
 
