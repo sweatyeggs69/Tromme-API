@@ -18,3 +18,12 @@ namespace_id = "1001"
   period = 60
 
 # Secrets (set with `wrangler secret put`): LASTFM_API_KEY, TICKETMASTER_API_KEY
+
+# Global budget for bulk requests (x-tromme-bulk: 1), see src/bulk-budget.js.
+[[durable_objects.bindings]]
+name = "BULK_BUDGET"
+class_name = "BulkBudget"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["BulkBudget"]

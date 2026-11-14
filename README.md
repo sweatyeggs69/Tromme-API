@@ -27,3 +27,5 @@ npx wrangler deploy
 ```
 
 Optional: `npx wrangler secret put ARTWORK_ORIGIN_SECRET` (same value as AppleArt's `ORIGIN_SECRET`).
+
+Requests sent with `x-tromme-bulk: 1` (library cleanup, new-album automation) also draw from a global per-lane budget kept in the `BulkBudget` Durable Object: 60 uncached AppleArt lookups and 120 uncached Last.fm calls a minute across all clients. When a lane is empty the Worker answers 429 with `retry-after`.

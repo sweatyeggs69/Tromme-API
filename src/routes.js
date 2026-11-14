@@ -1,7 +1,7 @@
 // One entry per proxied endpoint. Add a service by adding an entry here and its secret in wrangler.
 // Routes with `secret` need that key (added as `keyParam`); `originSecret` is sent as X-Origin-Secret when set.
 // A param with `inPath: true` fills the `{name}` placeholder in `upstream` instead of the query, and
-// `pattern` restricts its value. `requireOne` needs at least one of the listed params.
+// `pattern` restricts its value. `bulkLane` puts requests marked x-tromme-bulk on that lane's global budget. `requireOne` needs at least one of the listed params.
 // `negativeTtl` also caches 404s (a confirmed "nothing there"). Only the listed query params are forwarded; everything else the client sends is dropped.
 // `upstreamParams` adds values sent upstream but kept out of the cache key. `prune` rewrites the JSON body on every
 // response, cached or fresh, and returns the max-age the client may keep it.
@@ -28,6 +28,7 @@ function pruneStartedEvents(body, now) {
 
 export const routes = {
   "/lastfm/top-tracks": {
+    bulkLane: "lastfm",
     upstream: "https://ws.audioscrobbler.com/2.0/",
     secret: "LASTFM_API_KEY",
     keyParam: "api_key",
@@ -36,6 +37,7 @@ export const routes = {
     ttl: 604800
   },
   "/lastfm/album-tags": {
+    bulkLane: "lastfm",
     upstream: "https://ws.audioscrobbler.com/2.0/",
     secret: "LASTFM_API_KEY",
     keyParam: "api_key",
@@ -44,6 +46,7 @@ export const routes = {
     ttl: 604800
   },
   "/lastfm/artist-tags": {
+    bulkLane: "lastfm",
     upstream: "https://ws.audioscrobbler.com/2.0/",
     secret: "LASTFM_API_KEY",
     keyParam: "api_key",
@@ -63,6 +66,7 @@ export const routes = {
   },
   // AppleArt behind a Cloudflare tunnel. AppleArt remembers its own no-matches, so 404s are never cached here. The origin secret is optional until AppleArt enforces ORIGIN_SECRET.
   "/artwork/search": {
+    bulkLane: "appleart",
     upstream: "https://amaa.tromme.app/api/v1/artwork/search",
     originSecret: "ARTWORK_ORIGIN_SECRET",
     params: { artist: { required: true }, album: { required: true } },
@@ -70,6 +74,7 @@ export const routes = {
     ttl: 3600
   },
   "/artwork/static": {
+    bulkLane: "appleart",
     upstream: "https://amaa.tromme.app/api/v1/artwork/static/search",
     originSecret: "ARTWORK_ORIGIN_SECRET",
     params: { artist: { required: true }, album: { required: true } },
@@ -78,6 +83,7 @@ export const routes = {
     cacheVersion: 2
   },
   "/album/details": {
+    bulkLane: "appleart",
     upstream: "https://amaa.tromme.app/api/v1/album/details",
     originSecret: "ARTWORK_ORIGIN_SECRET",
     params: { id: { required: true, pattern: /^\d{1,15}$/ }, country: { pattern: /^[a-z]{2}$/ } },
@@ -86,6 +92,7 @@ export const routes = {
     cacheVersion: 2
   },
   "/artwork/artist": {
+    bulkLane: "appleart",
     upstream: "https://amaa.tromme.app/api/v1/artwork/artist/search",
     originSecret: "ARTWORK_ORIGIN_SECRET",
     params: { artist: { required: true } },

@@ -1,4 +1,7 @@
 import { routes, MAX_PARAM_LENGTH } from "./routes.js"
+import { BULK_BUDGETS } from "./bulk-budget.js"
+
+export { BulkBudget } from "./bulk-budget.js"
 
 const json = (body, status, headers = {}) =>
   new Response(JSON.stringify(body), {
@@ -45,6 +48,17 @@ export default {
     if (env.LIMITER) {
       const { success } = await env.LIMITER.limit({ key: ip })
       if (!success) return json({ error: "rate limited" }, 429, { "retry-after": "60" })
+    }
+
+    if (route.bulkLane && request.headers.get("x-tromme-bulk") === "1") {
+      let result
+      try {
+        const budget = env.BULK_BUDGET.get(env.BULK_BUDGET.idFromName("global"))
+        result = await budget.take(route.bulkLane, BULK_BUDGETS[route.bulkLane])
+      } catch {
+        result = { ok: false, retryAfter: 30 }
+      }
+      if (!result.ok) return json({ error: "bulk budget exhausted" }, 429, { "retry-after": String(result.retryAfter) })
     }
 
     const upstreamQuery = new URLSearchParams(query)
