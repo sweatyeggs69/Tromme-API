@@ -36,7 +36,7 @@ export default {
     query.sort()
 
     // The cache key never contains the secret.
-    const cacheKey = new Request(`https://api.tromme.app${url.pathname}?${query}`)
+    const cacheKey = new Request(`https://api.tromme.app${url.pathname}?${query}${route.cacheVersion ? `&cv=${route.cacheVersion}` : ""}`)
     const cache = caches.default
     const cached = await cache.match(cacheKey)
     if (cached) return route.prune ? prune(cached, route) : cached
