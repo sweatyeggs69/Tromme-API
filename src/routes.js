@@ -54,6 +54,15 @@ export const routes = {
     fixed: { method: "artist.gettoptags", format: "json", autocorrect: "1" },
     ttl: 604800
   },
+  "/lastfm/similar-artists": {
+    bulkLane: "lastfm",
+    upstream: "https://ws.audioscrobbler.com/2.0/",
+    secret: "LASTFM_API_KEY",
+    keyParam: "api_key",
+    params: { artist: { required: true } },
+    fixed: { method: "artist.getsimilar", format: "json", limit: "30", autocorrect: "1" },
+    ttl: 604800
+  },
   "/ticketmaster/events": {
     upstream: "https://app.ticketmaster.com/discovery/v2/events.json",
     secret: "TICKETMASTER_API_KEY",
