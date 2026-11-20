@@ -107,7 +107,7 @@ export const routes = {
     params: { artist: { required: true } },
     fixed: {},
     ttl: 86400,
-    cacheVersion: 3
+    cacheVersion: 4
   }
 }
 
