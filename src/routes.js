@@ -100,6 +100,14 @@ export const routes = {
     ttl: 86400,
     cacheVersion: 2
   },
+  "/album/details/batch": {
+    bulkLane: "appleart",
+    upstream: "https://amaa.tromme.app/api/v1/album/details/batch",
+    originSecret: "ARTWORK_ORIGIN_SECRET",
+    params: { ids: { required: true, pattern: /^\d{1,15}(,\d{1,15}){0,9}$/ }, country: { pattern: /^[a-z]{2}$/ } },
+    fixed: {},
+    ttl: 3600
+  },
   "/artwork/artist": {
     bulkLane: "appleart",
     upstream: "https://amaa.tromme.app/api/v1/artwork/artist/search",

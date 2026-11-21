@@ -50,7 +50,8 @@ export default {
       if (!success) return json({ error: "rate limited" }, 429, { "retry-after": "60" })
     }
 
-    if (route.bulkLane && request.headers.get("x-tromme-bulk") === "1") {
+    const bulk = route.bulkLane && request.headers.get("x-tromme-bulk") === "1"
+    if (bulk) {
       let result
       try {
         const budget = env.BULK_BUDGET.get(env.BULK_BUDGET.idFromName("global"))
@@ -79,6 +80,8 @@ export default {
       headers["x-origin-secret"] = originSecret
       // The origin sees this Worker's address as CF-Connecting-IP, so it rate limits on this instead.
       headers["x-client-ip"] = ip
+      // Lets the origin give bulk work its own per-client limit; only trusted alongside the secret.
+      if (bulk) headers["x-tromme-bulk"] = "1"
     }
 
     let upstreamResponse
